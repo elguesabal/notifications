@@ -1,7 +1,7 @@
 import { StyleSheet, Text, View } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { useState, useEffect } from "react";
-import * as Notifications from 'expo-notifications';
+import * as Notifications from "expo-notifications";
 
 Notifications.setNotificationHandler({
 	handleNotification: async () => ({
@@ -13,28 +13,35 @@ Notifications.setNotificationHandler({
 	})
 });
 
+async function getToken(setToken) {
+	const settings = await Notifications.getPermissionsAsync();
+	if (!settings.granted) await Notifications.requestPermissionsAsync();
+	// setToken((await Notifications.getExpoPushTokenAsync()).data);
+	try {
+		const ExpoPush = await Notifications.getExpoPushTokenAsync();
+		console.log("teste: ", ExpoPush);
+	} catch (error) {
+		console.log("erro: ", error);
+	}
+}
+
+// async function notification() {
+// 	await Notifications.scheduleNotificationAsync({
+// 		content: {
+// 			title: "title",
+// 			body: "body",
+// 		},
+// 		trigger: {
+// 		}
+// 	});
+// }
+
 export default function App() {
 	const [token, setToken] = useState("");
 
 	useEffect(() => {
-		// async function getToken() {
-		// 	const settings = await Notifications.getPermissionsAsync();
-		// 	if (!settings.granted) await Notifications.requestPermissionsAsync();
-		// 	setToken((await Notifications.getExpoPushTokenAsync()).data);
-		// }
-		// getToken();
-
-		async function notification() {
-			await Notifications.scheduleNotificationAsync({
-				content: {
-					title: "title",
-					body: "body",
-				},
-				trigger: {
-				}
-			});
-		}
-		notification();
+		getToken(setToken);
+		// notification();
 	}, []);
 // console.log("token: ", token)
 	return (
@@ -48,8 +55,8 @@ export default function App() {
 const styles = StyleSheet.create({
 	container: {
 		flex: 1,
-		backgroundColor: '#fff',
-		alignItems: 'center',
-		justifyContent: 'center',
+		backgroundColor: "#fff",
+		alignItems: "center",
+		justifyContent: "center",
 	},
 });
