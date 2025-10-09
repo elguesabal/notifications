@@ -2,51 +2,42 @@ import { StyleSheet, Text, View } from "react-native";
 import { StatusBar } from "expo-status-bar";
 import { useState, useEffect } from "react";
 import * as Notifications from "expo-notifications";
+import * as Device from "expo-device";
+import Constants from "expo-constants";
 
 Notifications.setNotificationHandler({
 	handleNotification: async () => ({
-		// shouldShowAlert: true, // OBSOLETO
 		shouldShowBanner: true,
-		// shouldShowList: true,
 		shouldPlaySound: true,
 		shouldSetBadge: true
 	})
 });
 
 async function getToken(setToken) {
+	if (!Device.isDevice) return (null);
 	const settings = await Notifications.getPermissionsAsync();
-	if (!settings.granted) await Notifications.requestPermissionsAsync();
-	// setToken((await Notifications.getExpoPushTokenAsync()).data);
+	if (settings.status !== "granted") {
+		const res = await Notifications.requestPermissionsAsync();
+		if (res.status !== "granted") return (null);
+	}
 	try {
-		const ExpoPush = await Notifications.getExpoPushTokenAsync();
-		console.log("teste: ", ExpoPush);
+		const projectId = Constants.expoConfig.extra.eas.projectId;
+		const token = (await Notifications.getExpoPushTokenAsync({ projectId })).data;
+		setToken(token);
+		console.log(token);
 	} catch (error) {
-		console.log("erro: ", error);
+		setToken(error.message);
+		console.log(error.message);
 	}
 }
-
-// async function notification() {
-// 	await Notifications.scheduleNotificationAsync({
-// 		content: {
-// 			title: "title",
-// 			body: "body",
-// 		},
-// 		trigger: {
-// 		}
-// 	});
-// }
 
 export default function App() {
 	const [token, setToken] = useState("");
 
-	useEffect(() => {
-		getToken(setToken);
-		// notification();
-	}, []);
-// console.log("token: ", token)
+	useEffect(() => { getToken(setToken) }, []);
 	return (
 		<View style={styles.container} >
-			<Text>{token}</Text>
+			<Text style={styles.token} selectable >{token}</Text>
 			<StatusBar style="auto" />
 		</View>
 	);
@@ -55,8 +46,11 @@ export default function App() {
 const styles = StyleSheet.create({
 	container: {
 		flex: 1,
-		backgroundColor: "#fff",
+		backgroundColor: "white",
 		alignItems: "center",
 		justifyContent: "center",
 	},
+	token: {
+		paddingHorizontal: "10%"
+	}
 });
