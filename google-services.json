@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "711054672715",
+    "project_id": "notifications-61374",
+    "storage_bucket": "notifications-61374.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:711054672715:android:980547843efb8af6d75ece",
+        "android_client_info": {
+          "package_name": "com.elguesabal.notifications"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBthzSmXewPFYdipZRnPV67AVkjHiTuLeQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
