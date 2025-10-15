@@ -37,7 +37,7 @@ export default function App() {
 	useEffect(() => { getToken(setToken) }, []);
 	return (
 		<View style={styles.container} >
-			{/* <Text style={styles.token} >{token}</Text> */}
+			<Text style={styles.token} selectable >{token}</Text>
 			<StatusBar style="auto" />
 		</View>
 	);

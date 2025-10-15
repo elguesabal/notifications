@@ -25,6 +25,7 @@
       "googleServicesFile": "./google-services.json",
       "useNextNotificationsApi": true
     },
+    "plugins": ["expo-notifications"],
     "web": {
       "favicon": "./assets/favicon.png"
     },
