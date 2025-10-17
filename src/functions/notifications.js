@@ -1,4 +1,4 @@
-import { Linking } from "react-native";
+import { Linking, Platform } from "react-native";
 import * as Notifications from "expo-notifications";
 import * as Device from "expo-device";
 import Constants from "expo-constants";
@@ -48,4 +48,26 @@ export async function notificationHandler(res, setData) {
 	} else if (data) {
 		setData(data);
 	}
+}
+
+/**
+ * @author VAMPETA
+ * @brief CRIA CANAIS DE NOTIFICACOES
+*/
+export async function setChannel() {
+	if (Platform.OS !== "android") return ;
+	await Notifications.setNotificationChannelAsync("uno", {
+		name: "Vou comer seu cu no uno",
+		importance: Notifications.AndroidImportance.HIGH,
+		sound: "uno.wav",
+		vibrationPattern: [250, 250, 250, 250],
+		lightColor: "#ffffffff",
+	});
+	await Notifications.setNotificationChannelAsync("tira", {
+		name: "Tira que eu vou cagar",
+		importance: Notifications.AndroidImportance.HIGH,
+		sound: "tira.wav",
+		vibrationPattern: [250, 250, 250, 250],
+		lightColor: "#ffffffff",
+	});
 }

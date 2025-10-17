@@ -25,7 +25,17 @@
       "googleServicesFile": "./google-services.json",
       "useNextNotificationsApi": true
     },
-    "plugins": ["expo-notifications"],
+    "plugins": [
+      [
+        "expo-notifications",
+        {
+          "sounds": [
+            "./assets/notifications/tira.wav",
+            "./assets/notifications/uno.wav"
+          ]
+        }
+      ]
+    ],
     "web": {
       "favicon": "./assets/favicon.png"
     },
