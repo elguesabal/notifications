@@ -27,10 +27,10 @@ export async function getToken(setToken) {
 		const projectId = Constants.expoConfig.extra.eas.projectId;
 		const token = (await Notifications.getExpoPushTokenAsync({ projectId })).data;
 		setToken(token);
-		console.log(token);
+		// console.log(token);
 	} catch (error) {
 		setToken(error.message);
-		console.log(error.message);
+		// console.log(error.message);
 	}
 }
 
@@ -50,24 +50,24 @@ export async function notificationHandler(res, setData) {
 	}
 }
 
-/**
- * @author VAMPETA
- * @brief CRIA CANAIS DE NOTIFICACOES
-*/
-export async function setChannel() {
-	if (Platform.OS !== "android") return ;
-	await Notifications.setNotificationChannelAsync("uno", {
-		name: "Vou comer seu cu no uno",
-		importance: Notifications.AndroidImportance.HIGH,
-		sound: "uno.wav",
-		vibrationPattern: [250, 250, 250, 250],
-		lightColor: "#ffffffff",
-	});
-	await Notifications.setNotificationChannelAsync("tira", {
-		name: "Tira que eu vou cagar",
-		importance: Notifications.AndroidImportance.HIGH,
-		sound: "tira.wav",
-		vibrationPattern: [250, 250, 250, 250],
-		lightColor: "#ffffffff",
-	});
-}
+// /**
+//  * @author VAMPETA
+//  * @brief CRIA CANAIS DE NOTIFICACOES
+// */
+// export async function setChannel() {
+// 	if (Platform.OS !== "android") return ;
+// 	await Notifications.setNotificationChannelAsync("uno", {
+// 		name: "Vou comer seu cu no uno",
+// 		importance: Notifications.AndroidImportance.HIGH,
+// 		sound: "uno.wav",
+// 		vibrationPattern: [250, 250, 250, 250],
+// 		lightColor: "#ffffffff",
+// 	});
+// 	await Notifications.setNotificationChannelAsync("tira", {
+// 		name: "Tira que eu vou cagar",
+// 		importance: Notifications.AndroidImportance.HIGH,
+// 		sound: "tira.wav",
+// 		vibrationPattern: [250, 250, 250, 250],
+// 		lightColor: "#ffffffff",
+// 	});
+// }

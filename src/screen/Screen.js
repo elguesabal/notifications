@@ -2,7 +2,7 @@ import { StyleSheet, View, Text } from "react-native";
 import { useState, useEffect } from "react";
 import * as Notifications from "expo-notifications";
 
-import { getToken, notificationHandler, setChannel } from "../functions/notifications.js";
+import { getToken, notificationHandler } from "../functions/notifications.js";
 
 import ScreenNotification from "./ScreenNotification.js";
 
@@ -11,9 +11,12 @@ export default function Screen() {
 	const [data, setData] = useState(null);
 
 	useEffect(() => {
-		setChannel();
 		getToken(setToken);
 		const subscription = Notifications.addNotificationResponseReceivedListener((res) => notificationHandler(res, setData));
+		(async () => {
+			const lastNotification = await Notifications.getLastNotificationResponse();
+			if (lastNotification) notificationHandler(lastNotification, setData);
+		})();
 		return (() => subscription.remove());
 	}, []);
 	if (data) return (<ScreenNotification data={data} />);
