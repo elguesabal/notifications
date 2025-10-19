@@ -23,7 +23,8 @@
       "edgeToEdgeEnabled": true,
       "package": "com.elguesabal.notifications",
       "googleServicesFile": "./google-services.json",
-      "useNextNotificationsApi": true
+      "useNextNotificationsApi": true,
+      "permissions": ["android.permission.NFC"]
     },
     "plugins": [
       [
@@ -34,7 +35,8 @@
             "./assets/notifications/uno.wav"
           ]
         }
-      ]
+      ],
+      "react-native-nfc-manager"
     ],
     "web": {
       "favicon": "./assets/favicon.png"
