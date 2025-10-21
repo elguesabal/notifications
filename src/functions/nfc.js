@@ -1,30 +1,44 @@
 import NfcManager, { NfcTech } from "react-native-nfc-manager";
+import { useEffect, useRef } from "react";
 
-export async function readNfc() { // DEVO CRIAR UM HOOK E EVITAR ACONTECER MULTIPLAS CHAMADAS EM RERENDERIZACOES
-	try {
-		await NfcManager.requestTechnology(NfcTech.Ndef);
-		const tag = await NfcManager.getTag();
-		// console.log("Tag lida: ", tag);
-		// console.log(tag.ndefMessage)
-		// console.log(writeText(tag.ndefMessage.payload))
-		if (tag.ndefMessage && tag.ndefMessage.length > 0) {
-			const payload = tag.ndefMessage[0].payload;
-			const text = writeText(payload);
-			console.log("Texto da tag:", text);
-		}
-	} catch (error) {
-		console.log("Erro: ", error);
-	} finally {
-		console.log("finally");
-		NfcManager.cancelTechnologyRequest();
-		// setTimeout(readNfc, 500);
-	}
+function decodeText(payload) {
+	const langLength = payload[0];
+	const textBytes = payload.slice(1 + langLength);
+	return String.fromCharCode.apply(null, textBytes);
 }
 
-function writeText(payload) {
-	const languageCodeLength = payload[0];
-	const textBytes = payload.slice(1 + languageCodeLength);
-	const text = String.fromCharCode.apply(null, textBytes);
+export function useReadNfc(setData) {
+	const reading = useRef(false);
 
-	return (text);
+	async function startNfc() {
+		if (reading.current) return ;
+		reading.current = true;
+
+		try {
+			await NfcManager.requestTechnology(NfcTech.Ndef);
+			const tag = await NfcManager.getTag();
+
+			if (tag?.ndefMessage?.length > 0) {
+				const text = decodeText(tag.ndefMessage[0].payload);
+				console.log("Texto lido:", text);
+				// Alert.alert("Tag detectada", text);
+				setData({ textNfc: text });
+			}
+		} catch (error) {
+			console.log("Erro ao ler NFC:", error);
+		} finally {
+			await NfcManager.cancelTechnologyRequest();
+			reading.current = false;
+			setTimeout(startNfc, 50);
+		}
+	}
+
+	useEffect(() => {
+		NfcManager.start();
+		startNfc();
+		return (() => {
+			NfcManager.cancelTechnologyRequest();
+			NfcManager.stop();
+		});
+	}, []);
 }

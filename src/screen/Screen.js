@@ -3,12 +3,15 @@ import { useState, useEffect } from "react";
 import * as Notifications from "expo-notifications";
 
 import { getToken, notificationHandler } from "../functions/notifications.js";
+import { useReadNfc } from "../functions/nfc.js";
 
 import ScreenNotification from "./ScreenNotification.js";
 
 export default function Screen() {
 	const [token, setToken] = useState("");
 	const [data, setData] = useState(null);
+
+	useReadNfc(setData);
 
 	useEffect(() => {
 		getToken(setToken);
