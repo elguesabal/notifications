@@ -1,20 +1,24 @@
-import { StyleSheet, View, Text } from "react-native";
 import { useState, useEffect } from "react";
 import * as Notifications from "expo-notifications";
 
-import { getToken, notificationHandler } from "../functions/notifications.js";
+import { getToken } from "../functions/token.js";
+import { notificationHandler } from "../functions/notification.js";
 import { useReadNfc } from "../functions/nfc.js";
 
-import ScreenNotification from "./ScreenNotification.js";
+import Token from "./Token.js";
+import Notification from "./Notification.js";
+import Nfc from "./Nfc.js";
 
+/**
+ * @author VAMPETA
+ * @brief TELA PRINCIPAL
+*/
 export default function Screen() {
-	const [token, setToken] = useState("");
 	const [data, setData] = useState(null);
 
 	useReadNfc(setData);
-
-	useEffect(() => {
-		getToken(setToken);
+	useEffect(() => { // CRIAR UM HOOK??
+		getToken(setData);
 		const subscription = Notifications.addNotificationResponseReceivedListener((res) => notificationHandler(res, setData));
 		(async () => {
 			const lastNotification = await Notifications.getLastNotificationResponse();
@@ -22,22 +26,8 @@ export default function Screen() {
 		})();
 		return (() => subscription.remove());
 	}, []);
-	if (data) return (<ScreenNotification data={data} />);
-	return (
-		<View style={styles.container} >
-			<Text style={styles.token} selectable >{token}</Text>
-		</View>
-	);
-}
 
-const styles = StyleSheet.create({
-	container: {
-		flex: 1,
-		backgroundColor: "white",
-		alignItems: "center",
-		justifyContent: "center"
-	},
-	token: {
-		paddingHorizontal: "10%"
-	}
-});
+	if (data?.nfc) return (<Nfc nfc={data.nfc} />);
+	if (data?.notification) return (<Notification data={data.notification} />);
+	if (data?.token) return (<Token token={data.token} />);
+}

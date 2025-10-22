@@ -1,11 +1,11 @@
 import { Text, View, Image } from "react-native";
 
-export default function ScreenNotification({ data }) {
-	return (
-		<>
-			<Text>{data.textNfc}</Text>
-		</>
-	);
+/**
+ * @author VAMPETA
+ * @brief TELA QUE EXIBE O CONTEUDO DA NOTIFICACAO
+ * @param data INFORMACOES PASSADAS PELA NOTIFICACAO
+*/
+export default function Notification({ data }) {
 	return (
 		<View style={data?.style?.container} >
 			{data?.title && <Text style={data?.style?.title} >{data.title}</Text>}
