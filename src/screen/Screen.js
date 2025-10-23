@@ -1,9 +1,6 @@
-import { useState, useEffect } from "react";
-import * as Notifications from "expo-notifications";
-
-import { getToken } from "../functions/token.js";
-import { notificationHandler } from "../functions/notification.js";
-import { useReadNfc } from "../functions/nfc.js";
+import { useToken } from "../functions/token.js";
+import { useNotification } from "../functions/notification.js";
+import { useNfc } from "../functions/nfc.js";
 
 import Token from "./Token.js";
 import Notification from "./Notification.js";
@@ -14,20 +11,11 @@ import Nfc from "./Nfc.js";
  * @brief TELA PRINCIPAL
 */
 export default function Screen() {
-	const [data, setData] = useState(null);
+	const token = useToken();
+	const notification = useNotification();
+	const nfc = useNfc();
 
-	useReadNfc(setData);
-	useEffect(() => { // CRIAR UM HOOK??
-		getToken(setData);
-		const subscription = Notifications.addNotificationResponseReceivedListener((res) => notificationHandler(res, setData));
-		(async () => {
-			const lastNotification = await Notifications.getLastNotificationResponse();
-			if (lastNotification) notificationHandler(lastNotification, setData);
-		})();
-		return (() => subscription.remove());
-	}, []);
-
-	if (data?.nfc) return (<Nfc nfc={data.nfc} />);
-	if (data?.notification) return (<Notification data={data.notification} />);
-	if (data?.token) return (<Token token={data.token} />);
+	if (nfc) return (<Nfc nfc={nfc} />);
+	if (notification) return (<Notification data={notification} />);
+	if (token) return (<Token token={token} />);
 }

@@ -1,5 +1,5 @@
 import NfcManager, { NfcTech } from "react-native-nfc-manager";
-import { useEffect, useRef } from "react";
+import { useRef, useState, useEffect } from "react";
 
 /**
  * @author VAMPETA
@@ -15,35 +15,33 @@ function decodeText(payload) {
 /**
  * @author VAMPETA
  * @brief HOOK QUE LE O NFC
- * @param setData FUNCAO QUE SALVA AS INFORMACOES DO NFC
+ * @return RETORNA O CONTEUDO LIDO NO NFC
 */
-export function useReadNfc(setData) {
+export function useNfc() {
 	const reading = useRef(false);
-
-	async function startNfc() {
-		if (reading.current) return ;
-		reading.current = true;
-
-		try {
-			await NfcManager.requestTechnology(NfcTech.Ndef);
-			const tag = await NfcManager.getTag();
-
-			if (tag?.ndefMessage?.length > 0) setData({ nfc: decodeText(tag.ndefMessage[0].payload) });
-		} catch (error) {
-			console.log("Erro ao ler NFC:", error);
-		} finally {
-			await NfcManager.cancelTechnologyRequest();
-			reading.current = false;
-			setTimeout(startNfc, 50);
-		}
-	}
+	const [nfc, setNfc] = useState(null);
 
 	useEffect(() => {
 		NfcManager.start();
-		startNfc();
+		(async function startNfc() {
+			if (reading.current) return ;
+			reading.current = true;
+			try {
+				await NfcManager.requestTechnology(NfcTech.Ndef);
+				const tag = await NfcManager.getTag();
+				if (tag?.ndefMessage?.length > 0) setNfc(decodeText(tag.ndefMessage[0].payload));
+			} catch (error) {
+				setNfc(error.message);
+			} finally {
+				await NfcManager.cancelTechnologyRequest();
+				reading.current = false;
+				setTimeout(startNfc, 200);
+			}
+		})();
 		return (() => {
 			NfcManager.cancelTechnologyRequest();
 			NfcManager.stop();
 		});
 	}, []);
+	return (nfc);
 }
