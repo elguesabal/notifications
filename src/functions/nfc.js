@@ -1,4 +1,4 @@
-import NfcManager, { NfcTech } from "react-native-nfc-manager";
+import NfcManager, { NfcTech, Ndef } from "react-native-nfc-manager";
 import { useRef, useState, useEffect } from "react";
 
 /**
@@ -7,9 +7,27 @@ import { useRef, useState, useEffect } from "react";
  * @param payload BINARIO PARA SER CODIFICADO
 */
 function decodeText(payload) {
-	const langLength = payload[0];
-	const textBytes = payload.slice(1 + langLength);
-	return String.fromCharCode.apply(null, textBytes);
+	return (String.fromCharCode.apply(null, payload.slice(1 + payload[0])));
+}
+
+/**
+ * @author VAMPETA
+ * @brief DECODIFICA O BINARIO DO NFC PARA URI
+ * @param payload BINARIO PARA SER CODIFICADO
+*/
+function decodeUri(payload) {
+	const uriPrefixes = [
+		"", "http://www.", "https://www.", "http://", "https://",
+		"tel:", "mailto:", "ftp://anonymous:anonymous@", "ftp://ftp.",
+		"ftps://", "sftp://", "smb://", "nfs://", "ftp://", "dav://",
+		"news:", "telnet://", "imap:", "rtsp://", "urn:", "pop:",
+		"sip:", "sips:", "tftp:", "btspp://", "btl2cap://", "btgoep://",
+		"tcpobex://", "irdaobex://", "file://", "urn:epc:id:",
+		"urn:epc:tag:", "urn:epc:pat:", "urn:epc:raw:", "urn:epc:",
+		"urn:nfc:"
+	];
+
+	return ((uriPrefixes[payload[0]] || "") + String.fromCharCode.apply(null, payload.slice(1)));
 }
 
 /**
@@ -24,12 +42,14 @@ export function useNfc() {
 	useEffect(() => {
 		NfcManager.start();
 		(async function startNfc() {
-			if (reading.current) return ;
+			if (reading.current) return;
 			reading.current = true;
 			try {
 				await NfcManager.requestTechnology(NfcTech.Ndef);
 				const tag = await NfcManager.getTag();
-				if (tag?.ndefMessage?.length > 0) setNfc(decodeText(tag.ndefMessage[0].payload));
+				if (tag?.ndefMessage?.length <= 0) return;
+				if (Ndef.isType(tag.ndefMessage[0], Ndef.TNF_WELL_KNOWN, Ndef.RTD_TEXT)) setNfc(decodeText(tag.ndefMessage[0].payload));
+				if (Ndef.isType(tag.ndefMessage[0], Ndef.TNF_WELL_KNOWN, Ndef.RTD_URI)) setNfc(decodeUri(tag.ndefMessage[0].payload));
 			} catch (error) {
 				setNfc(error.message);
 			} finally {
