@@ -1,21 +1,14 @@
-import NfcManager, { NfcTech, Ndef } from "react-native-nfc-manager";
+import { Linking } from "react-native";
 import { useRef, useState, useEffect } from "react";
+import NfcManager, { NfcTech, Ndef } from "react-native-nfc-manager";
+import axios from "axios";
 
 /**
  * @author VAMPETA
- * @brief DECODIFICA O BINARIO DO NFC PARA TEXTO
- * @param payload BINARIO PARA SER CODIFICADO
+ * @brief DECODIFICA O BINARIO DO NFC
+ * @param tag INFORMACOES DA TAG NFC
 */
-function decodeText(payload) {
-	return (String.fromCharCode.apply(null, payload.slice(1 + payload[0])));
-}
-
-/**
- * @author VAMPETA
- * @brief DECODIFICA O BINARIO DO NFC PARA URI
- * @param payload BINARIO PARA SER CODIFICADO
-*/
-function decodeUri(payload) {
+function decode(tag) {
 	const uriPrefixes = [
 		"", "http://www.", "https://www.", "http://", "https://",
 		"tel:", "mailto:", "ftp://anonymous:anonymous@", "ftp://ftp.",
@@ -27,7 +20,20 @@ function decodeUri(payload) {
 		"urn:nfc:"
 	];
 
-	return ((uriPrefixes[payload[0]] || "") + String.fromCharCode.apply(null, payload.slice(1)));
+	if (tag?.ndefMessage?.length <= 0) return (null);
+	if (Ndef.isType(tag.ndefMessage[0], Ndef.TNF_WELL_KNOWN, Ndef.RTD_TEXT)) return ({ text: (uriPrefixes[tag.ndefMessage[0].payload[0]] || "") + String.fromCharCode.apply(null, tag.ndefMessage[0].payload.slice(1)) });
+	if (Ndef.isType(tag.ndefMessage[0], Ndef.TNF_WELL_KNOWN, Ndef.RTD_URI)) return ({ url: (uriPrefixes[tag.ndefMessage[0].payload[0]] || "") + String.fromCharCode.apply(null, tag.ndefMessage[0].payload.slice(1)) });
+	return (null);
+}
+
+
+async function reqApi(url) {
+	try {
+		const res = await axios.get("https://jailane.vercel.app/nfc");
+		console.log(res.data);
+	} catch (error) {
+		console.log("deu erro");
+	}
 }
 
 /**
@@ -46,10 +52,10 @@ export function useNfc() {
 			reading.current = true;
 			try {
 				await NfcManager.requestTechnology(NfcTech.Ndef);
-				const tag = await NfcManager.getTag();
-				if (tag?.ndefMessage?.length <= 0) return;
-				if (Ndef.isType(tag.ndefMessage[0], Ndef.TNF_WELL_KNOWN, Ndef.RTD_TEXT)) setNfc(decodeText(tag.ndefMessage[0].payload));
-				if (Ndef.isType(tag.ndefMessage[0], Ndef.TNF_WELL_KNOWN, Ndef.RTD_URI)) setNfc(decodeUri(tag.ndefMessage[0].payload));
+				const result = decode(await NfcManager.getTag());
+				// if (result.url) await Linking.openURL(result.url);
+				if (result.url) await reqApi(result.url);
+				if (result.text) setNfc(result.text);
 			} catch (error) {
 				setNfc(error.message);
 			} finally {

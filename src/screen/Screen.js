@@ -16,6 +16,6 @@ export default function Screen() {
 	const nfc = useNfc();
 
 	if (nfc) return (<Nfc nfc={nfc} />);
-	if (notification) return (<Notification data={notification} />);
+	if (notification) return (<Notification notification={notification} />);
 	if (token) return (<Token token={token} />);
 }

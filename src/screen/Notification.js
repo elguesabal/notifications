@@ -3,14 +3,14 @@ import { Text, View, Image } from "react-native";
 /**
  * @author VAMPETA
  * @brief TELA QUE EXIBE O CONTEUDO DA NOTIFICACAO
- * @param data INFORMACOES PASSADAS PELA NOTIFICACAO
+ * @param notification INFORMACOES PASSADAS PELA NOTIFICACAO
 */
-export default function Notification({ data }) {
+export default function Notification({ notification }) {
 	return (
-		<View style={data?.style?.container} >
-			{data?.title && <Text style={data?.style?.title} >{data.title}</Text>}
-			{data?.text && <Text style={data?.style?.text} >{data.text}</Text>}
-			{data?.img && <Image style={data?.style?.img} source={{ uri: data.img }} />}
+		<View style={notification?.style?.container} >
+			{notification?.title && <Text style={notification?.style?.title} >{notification.title}</Text>}
+			{notification?.text && <Text style={notification?.style?.text} >{notification.text}</Text>}
+			{notification?.img && <Image style={notification?.style?.img} source={{ uri: notification.img }} />}
 		</View>
 	);
 }
