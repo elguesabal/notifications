@@ -3,6 +3,8 @@ import { useRef, useState, useEffect } from "react";
 import NfcManager, { NfcTech, Ndef } from "react-native-nfc-manager";
 import axios from "axios";
 
+import API_URL from "../api.js";
+
 /**
  * @author VAMPETA
  * @brief DECODIFICA O BINARIO DO NFC
@@ -26,13 +28,20 @@ function decode(tag) {
 	return (null);
 }
 
-
-async function reqApi(url) {
+/**
+ * @author VAMPETA
+ * @brief 
+ * @param url 
+*/
+async function request(url) {
 	try {
-		const res = await axios.get("https://jailane.vercel.app/nfc");
-		console.log(res.data);
+		const res = await axios.get(API_URL);
+
+		if (res.status !== 200) return ;
+		if (res.data.redirect) await Linking.openURL(res.data.redirect);
+		if (res.data.data) console.log(res.data.data);
 	} catch (error) {
-		console.log("deu erro");
+		console.log("Error: ", error);
 	}
 }
 
@@ -52,9 +61,10 @@ export function useNfc() {
 			reading.current = true;
 			try {
 				await NfcManager.requestTechnology(NfcTech.Ndef);
+				// const jae = await NfcManager.getTag();
+				// console.log(jae)
 				const result = decode(await NfcManager.getTag());
-				// if (result.url) await Linking.openURL(result.url);
-				if (result.url) await reqApi(result.url);
+				if (result.url) await request(result.url);
 				if (result.text) setNfc(result.text);
 			} catch (error) {
 				setNfc(error.message);
