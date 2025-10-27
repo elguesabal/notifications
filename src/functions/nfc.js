@@ -30,16 +30,17 @@ function decode(tag) {
 
 /**
  * @author VAMPETA
- * @brief 
- * @param url 
+ * @brief FAZ A REQUISICAO A API DA TAG
+ * @param url URL GRAVADA NA TAG
+ * @param setNfc FUNCAO QUE SALVA O RESULTADO DA REQUISICAO (SE NAO FOR REDIRECIONADO)
 */
-async function request(url) {
+async function request(url, setNfc) {
 	try {
 		const res = await axios.get(API_URL);
 
 		if (res.status !== 200) return ;
 		if (res.data.redirect) await Linking.openURL(res.data.redirect);
-		if (res.data.data) console.log(res.data.data);
+		if (res.data.data) setNfc(res.data.data);
 	} catch (error) {
 		console.log("Error: ", error);
 	}
@@ -61,10 +62,8 @@ export function useNfc() {
 			reading.current = true;
 			try {
 				await NfcManager.requestTechnology(NfcTech.Ndef);
-				// const jae = await NfcManager.getTag();
-				// console.log(jae)
 				const result = decode(await NfcManager.getTag());
-				if (result.url) await request(result.url);
+				if (result.url) await request(result.url, setNfc);
 				if (result.text) setNfc(result.text);
 			} catch (error) {
 				setNfc(error.message);
